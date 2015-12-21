@@ -8,10 +8,11 @@ stitch help <cmd>
 from fabric import state
 
 def options(parser):
+    """Options for the help command"""
     parser.add_argument('host')
     parser.add_argument('cmd')
 
-def execute(cmd, **unused_kw):
+def execute(cmd):
     """Show specific command"""
     state.commands.help(cmd)
 

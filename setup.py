@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name='stitch',
-    version='0.5.0',
+    version='0.8.0',
     author="Rolf Meyer",
     author_email="rmeyer@embeddedfactor.com",
     description=("An automation utility to deploy server configurations "
@@ -23,7 +23,7 @@ setup(
     scripts=['bin/stitch'],
     long_description=read('README.md'),
     install_requires=[
-        'yarn',
+        'ruamel.yaml==0.10.6',
         'Fabric==1.10.2',
         'Jinja2==2.8',
     ],
