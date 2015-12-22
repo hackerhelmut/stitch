@@ -6,8 +6,10 @@ Simple python orchestration with fabric, stitch.datastore and fabtools
 """
 
 import os
-import stitch.datastore
-from stitch.datastore.utils import resolve
+from .datastore.utils import resolve
+from .datastore.hosts import get_file_iterator
+from .datastore.template import Template
+from .datastore.environment import env
 from fabric import api
 from pipes import quote
 from fabtools.utils import run_as_root
@@ -22,7 +24,7 @@ class Directory(object):
 
     def __enter__(self):
         """Create directory"""
-        if stitch.datastore.env.dryrun:
+        if env.dryrun:
             print "### Host: %s" % self.host, '#' * (100-len("### Host: %s " % self.host))
             print "mkdir -p %s" % quote(self.path)
         elif self.path == 'localhost':
@@ -31,9 +33,9 @@ class Directory(object):
             api.run('mkdir -p %s' % quote(self.path))
         return self
 
-    def __exit__(self, type, value, tb):
+    def __exit__(self, typeclass, value, traceback):
         """Destroy directory"""
-        if stitch.datastore.env.dryrun:
+        if env.dryrun:
             print "# Host: %s" % self.host
             print "rm -rf %s" % quote(self.path)
         elif self.path == 'localhost':
@@ -43,9 +45,9 @@ class Directory(object):
 
 def render_template(template, defaults):
     """Render script template to string"""
-    if not isinstance(template, stitch.datastore.template.Template):
+    if not isinstance(template, Template):
         filename = template.format(**defaults)
-        template = stitch.datastore.template.Template(filename=filename)
+        template = Template(filename=filename)
     return template.format(**defaults)
 
 def execute_scripts(obj, defaults):
@@ -55,11 +57,15 @@ def execute_scripts(obj, defaults):
         scriptname = obj.get("execute")
         script = render_template(scriptname, defaults)
         if defaults.get("dryrun", False):
-            print script
+            print script.encode('utf8')
         else:
             filehandler = StringIO()
             filehandler.write(script)
-            remote_script=os.path.join(defaults.get("__tmpdir__"), "{}-script.sh".format(defaults.get("host", "localhost")))
+            remote_script = os.path.join(
+                defaults.get("__tmpdir__"),
+                "{}-script.sh".format(defaults.get("host", "localhost"))
+            )
+
             api.put(
                 local_path=filehandler,
                 remote_path=remote_script,
@@ -72,7 +78,7 @@ def execute_scripts(obj, defaults):
 def execute_store(obj, defaults):
     """Download files from the system"""
     for fileobj in obj.get("store", []):
-        for store, store_defaults in stitch.datastore.hosts.get_file_iterator(fileobj, defaults):
+        for store, store_defaults in get_file_iterator(fileobj, defaults):
             source = store.get("path").format(**store_defaults)
             destination = store.get("destination").format(**store_defaults)
             destdir = os.path.dirname(destination)
@@ -92,8 +98,8 @@ def execute_step(obj, defaults):
             hosts = resolve(step_obj["hosts"], **defaults)
             if isinstance(hosts, str):
                 hosts = hosts.replace(",", " ").split(" ")
-            if "exclude" in stitch.datastore.env.args:
-                exclude = stitch.datastore.env.args["exclude"].split(',')
+            if "exclude" in env.args:
+                exclude = env.args["exclude"].split(',')
                 hosts = [host for host in hosts if host not in exclude]
         if any(hosts):
             for host in hosts:
@@ -101,7 +107,8 @@ def execute_step(obj, defaults):
                 step_defaults["host"] = host
                 with api.settings(host_string=host):
                     with Directory(step_defaults):
-                        step_defaults.update(**resolve(step_obj.get('defaults', {}), **step_defaults))
+                        step_defaults.update(
+                            **resolve(step_obj.get('defaults', {}), **step_defaults))
 
                         execute_scripts(step_obj, step_defaults)
                         execute_store(step_obj, step_defaults)

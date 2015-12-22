@@ -11,6 +11,7 @@ import itertools
 from objectpath import Tree
 from fabric.api import env
 from stitch.datastore import yaml
+import copy
 
 env["datastore"] = {}
 env["template"] = {
@@ -47,6 +48,19 @@ def load(path='db'):
         "path": path,
     })
     return loaddir(path)
+
+def deepcopy(orig):
+    """copy environment"""
+    linkmembers = ['datastore', 'template']
+    shallow = copy.copy(orig)
+    for mem in linkmembers:
+        if mem in shallow and shallow[mem] == env[mem]:
+            del shallow[mem]
+    deep = copy.deepcopy(shallow)
+    for mem in linkmembers:
+        if mem in orig and orig[mem] == env[mem]:
+            deep[mem] = orig[mem]
+    return deep
 
 def init(path='db'):
     """Initialize a stitch.datastore db"""

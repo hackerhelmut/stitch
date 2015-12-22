@@ -4,8 +4,10 @@
 embeddedfactor GmbH 2015
 Implements DB functions to query host entries
 """
-from stitch.datastore.environment import query, env
+import collections
+from stitch.datastore.environment import query, env, deepcopy
 from stitch.datastore.utils import get_obj_by_name, get_obj_defaultvalues, OBJT_HOST
+from stitch.datastore.utils import resolve
 
 def get_system_groups_and_users(host):
     """Returns system groups and users"""
@@ -52,9 +54,6 @@ def resolve_users(host, only_admins=True):
 env['template']['functions']['resolve_host_users'] = resolve_users
 
 def get_file_iterator(file_object, service_defaults):
-    import stitch.datastore
-    import collections
-    import copy
     file_defaults = {}
     file_defaults.update(service_defaults)
 
@@ -67,37 +66,35 @@ def get_file_iterator(file_object, service_defaults):
             if len(keys):
                 name = keys[0]
                 rest = keys[1:]
-                for item in stitch.datastore.utils.resolve(iterator[name], **defaults):
+                for item in resolve(iterator[name], **defaults):
                     defaults['iter'][name] = item
-                    result += iter_dict(iterator, rest, file_obj, copy.deepcopy(defaults))
+                    result += iter_dict(iterator, rest, file_obj, deepcopy(defaults))
             else:
                 final_defaults = defaults
-                final_defaults.update(
-                    stitch.datastore.utils.resolve(file_obj.get('defaults', {}), **defaults))
+                final_defaults.update(resolve(file_obj.get('defaults', {}), **defaults))
                 return [(file_obj, final_defaults)]
             return result
 
         return iter_dict(iterator, iterator.keys(), file_object, file_defaults)
     else:
         result = []
-        iterator = stitch.datastore.utils.resolve(file_object.get('iter', ['']), **file_defaults)
+        iterator = resolve(file_object.get('iter', ['']), **file_defaults)
         if not isinstance(iterator, collections.Iterable):
             import sys
-            print "Error: The iterator 'iter' of the path '{}' of service '{}' in host '{}' is not iterable".format(file_object.get('path', file_object.get('dst', "<unknown>")), service_object, host_object.name)
+            print "Error: The iterator 'iter' of the path '{}' of service '{}' in host '{}' is not iterable".format(file_object.get('path', file_object.get('dst', "<unknown>")), service_defaults['service'], service_defaults['host'])
             sys.exit(1)
 
         for item in iterator:
             file_defaults["iter"] = item
-            file_defaults.update(
-                stitch.datastore.utils.resolve(file_object.get('defaults', {}), **file_defaults))
-            result += [(file_object, copy.deepcopy(file_defaults))]
+            file_defaults.update(resolve(file_object.get('defaults', {}), **file_defaults))
+            result += [(file_object, deepcopy(file_defaults))]
         return result
 env['template']['functions']['service_get_file_iterator'] = get_file_iterator
 
 def import_file(filename, default=None):
     try:
         with open(filename, 'r') as filehandle:
-            return filehandle.read()
+            return filehandle.read().decode('utf8')
     except IOError:
         return default
 env['template']['functions']['import_file'] = import_file
