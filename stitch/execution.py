@@ -12,7 +12,6 @@ from .datastore.template import Template
 from .datastore.environment import env
 from fabric import api
 from pipes import quote
-from fabtools.utils import run_as_root
 
 class Directory(object):
     """Directory Guard"""
@@ -41,7 +40,7 @@ class Directory(object):
         elif self.path == 'localhost':
             api.local("rm -rf %s" % quote(self.path))
         else:
-            run_as_root('rm -rf %s' % quote(self.path))
+            api.sudo('rm -rf %s' % quote(self.path))
 
 def render_template(template, defaults):
     """Render script template to string"""

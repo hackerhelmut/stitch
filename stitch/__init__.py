@@ -32,7 +32,14 @@ def main():
     """
     try:
         # Initialize Yarn Datastore
-        datastore.init()
+        if os.path.isfile("db/stitch.yaml"):
+            datastore.init()
+        elif os.path.isfile("stitch.yaml"):
+            datastore.init('.')
+        else:
+            print "Please enter the datastore directory first and use stitch at the root."
+            sys.exit(1)
+
         # Register Python commands
         state.commands = Commands([
             'stitch.help',
