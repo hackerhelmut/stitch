@@ -4,6 +4,7 @@
 embeddedfactor GmbH 2015
 Implements yaml loading and storring
 """
+from __future__ import print_function
 import sys
 import stitch.datastore
 import types
@@ -80,14 +81,14 @@ def load(filename):
             elif isinstance(result, dict):
                 result[FILE_PROPERTY] = filename
     except yaml.reader.ReaderError as err:
-        print "Error in file:", filename
-        print err.message()
+        print("Error in file:", filename)
+        print(err.message())
         sys.exit(1)
     except yaml.scanner.ScannerError as err:
-        print "Error in file {filename} ".format(filename=filename), err
+        print("Error in file {filename} ".format(filename=filename), err)
         sys.exit(1)
     except yaml.parser.ParserError as err:
-        print "Error in file {filename} ".format(filename=filename), err
+        print("Error in file {filename} ".format(filename=filename), err)
         sys.exit(1)
     return result
 

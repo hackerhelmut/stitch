@@ -4,6 +4,7 @@
 embeddedfactor GmbH 2015
 Implements DB functions to query host entries
 """
+from __future__ import print_function
 import collections
 from stitch.datastore.environment import query, env, deepcopy
 from stitch.datastore.utils import get_obj_by_name, get_obj_defaultvalues, OBJT_HOST
@@ -39,7 +40,7 @@ def get_groups_and_users(host, include_users=True, include_admins=True):
     admins = get_admin_list(host) if include_admins else []
     groups = [group[1:] for group in users + admins if group and group.startswith("+")]
     both = [group[1:] for group in users + admins if group and group.startswith("=")]
-    users = [user for user in users if group and not user.startswith("+") and not user.startswith("=")]
+    users = [user for user in users + admins if group and not user.startswith("+") and not user.startswith("=")]
     return list(groups + both), list(users + both)
 env['template']['functions']['get_host_groups_and_users'] = get_groups_and_users
 
@@ -81,7 +82,7 @@ def get_file_iterator(file_object, service_defaults):
         iterator = resolve(file_object.get('iter', ['']), **file_defaults)
         if not isinstance(iterator, collections.Iterable):
             import sys
-            print "Error: The iterator 'iter' of the path '{}' of service '{}' in host '{}' is not iterable".format(file_object.get('path', file_object.get('dst', "<unknown>")), service_defaults['service'], service_defaults['host'])
+            print("Error: The iterator 'iter' of the path '{}' of service '{}' in host '{}' is not iterable".format(file_object.get('path', file_object.get('dst', "<unknown>")), service_defaults['service'], service_defaults['host']))
             sys.exit(1)
 
         for item in iterator:

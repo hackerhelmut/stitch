@@ -4,6 +4,7 @@
 embeddedfactor GmbH 2015
 Connects the jinja2 template engine
 """
+from __future__ import print_function
 from jinja2 import Environment, FileSystemLoader
 from jinja2.exceptions import TemplateSyntaxError
 import sys
@@ -43,7 +44,7 @@ class Template(object):
                 with open(self.filename, 'r') as filehandle:
                     self.template = filehandle.read()
             except IOError as err:
-                print "An IOError occured", err
+                print("An IOError occured", err)
                 sys.exit(1)
 
     def __repr__(self):
@@ -67,15 +68,18 @@ class Template(object):
             newkw.update(kw)
             newkw.update(query_kw)
             return query(querystr, **newkw)
+        def isdict(name):
+            return isinstance(name, dict)
         kw['query'] = jinja2Query
+        kw['isdict'] = isdict
         kw.update(env['template']['functions'])
         try:
             template = ENVIRONMENT.from_string(self.template)
             template.filename = self.filename
             return template.render(**kw)
         except TemplateSyntaxError as err:
-            print "An rendering error occured {}:{}".format(
-                self.filename, err.lineno), err
+            print("An rendering error occured {}:{}".format(
+                self.filename, err.lineno), err)
             sys.exit(1)
 
 def template_f(template=None, filename=None):

@@ -4,6 +4,7 @@
 embeddedfactor GmbH 2015
 Implements direct environment in memory DB for Yarn
 """
+from __future__ import print_function
 import os
 import os.path
 import types
@@ -174,8 +175,8 @@ def query(querystr, **kw):
 
     full_query = querystr.format(**kw)
     if env.debug:
-        print querystr, full_query
+        print(querystr, full_query)
     res = tree.execute(full_query)
     if env.debug:
-        print full_query, res
+        print(full_query, res)
     return query_getter(res, None)

@@ -4,7 +4,7 @@
 embeddedfactor GmbH 2015
 Simple python orchestration with fabric, stitch.datastore and fabtools
 """
-
+from __future__ import print_function
 import stitch.datastore
 from stitch.datastore.utils import resolve
 from stitch.execution import execute_step
@@ -67,7 +67,7 @@ class Commands(dict):
     def help(self, name):
         """Show help of the command with the name name"""
         if name in self:
-            print self[name][0]
+            print(self[name][0])
 
     def execute(self, name):
         """Execute the command with name name and all the arguments in the kw dict"""

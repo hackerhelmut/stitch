@@ -4,6 +4,7 @@
 embeddedfactor GmbH 2015
 Implements common functions
 """
+from __future__ import print_function
 import types
 import itertools
 from stitch.datastore.environment import query, env
@@ -38,11 +39,11 @@ def resolve(obj, **defaults):
             result = obj
         return result
     except KeyError as err:
-        print "################################################################"
-        print "The Key {} was not found in the dict. The following keys are available:".format(err.message)
-        print ", ".join(defaults.keys())
-        print ""
-        print "For more information run in debug mode (-d)"
+        print("################################################################")
+        print("The Key {} was not found in the dict. The following keys are available:".format(err.message))
+        print(", ".join(defaults.keys()))
+        print("")
+        print("For more information run in debug mode (-d)")
         if env.debug:
             import traceback
             traceback.print_stack()

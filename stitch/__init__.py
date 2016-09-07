@@ -5,6 +5,7 @@ embeddedfactor GmbH 2015
 Simple python orchestration with fabric and fabtools
 """
 
+from __future__ import print_function
 from operator import isMappingType
 import os
 import sys
@@ -37,7 +38,7 @@ def main():
         elif os.path.isfile("stitch.yaml"):
             datastore.init('.')
         else:
-            print "Please enter the datastore directory first and use stitch at the root."
+            print("Please enter the datastore directory first and use stitch at the root.")
             sys.exit(1)
 
         # Register Python commands
@@ -84,7 +85,7 @@ def main():
 
         # If we got here, no errors occurred, so print a final note.
         if state.output.status:
-            print "\n# Done."
+            print("\n# Done.")
     except SystemExit:
         # a number of internal functions might raise this one.
         raise
@@ -95,7 +96,7 @@ def main():
         sys.exit(1)
 
     except fabric.exceptions.NetworkError as err:
-        print "# Network Error", err
+        print("# Network Error", err)
         sys.exit(1)
 
     except:

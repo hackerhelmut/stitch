@@ -4,7 +4,7 @@
 embeddedfactor GmbH 2015
 Simple python orchestration with fabric, stitch.datastore and fabtools
 """
-
+from __future__ import print_function
 import os
 from .datastore.utils import resolve
 from .datastore.hosts import get_file_iterator
@@ -24,8 +24,8 @@ class Directory(object):
     def __enter__(self):
         """Create directory"""
         if env.dryrun:
-            print "### Host: %s" % self.host, '#' * (100-len("### Host: %s " % self.host))
-            print "mkdir -p %s" % quote(self.path)
+            print("### Host: %s" % self.host, '#' * (100-len("### Host: %s " % self.host)))
+            print("mkdir -p %s" % quote(self.path))
         elif self.path == 'localhost':
             api.local("mkdir -p %s" % quote(self.path))
         else:
@@ -35,8 +35,8 @@ class Directory(object):
     def __exit__(self, typeclass, value, traceback):
         """Destroy directory"""
         if env.dryrun:
-            print "# Host: %s" % self.host
-            print "rm -rf %s" % quote(self.path)
+            print("# Host: %s" % self.host)
+            print("rm -rf %s" % quote(self.path))
         elif self.path == 'localhost':
             api.local("rm -rf %s" % quote(self.path))
         else:
@@ -56,7 +56,7 @@ def execute_scripts(obj, defaults):
         scriptname = obj.get("execute")
         script = render_template(scriptname, defaults)
         if defaults.get("dryrun", False):
-            print script.encode('utf8')
+            print(script.encode('utf8'))
         else:
             filehandler = StringIO()
             filehandler.write(script)
@@ -83,8 +83,8 @@ def execute_store(obj, defaults):
             destdir = os.path.dirname(destination)
 
             if defaults.get("dryrun", False):
-                print "# Create dir '%s'" % destdir
-                print "# Retrive {} to {}".format(source, destination)
+                print("# Create dir '%s'" % destdir)
+                print("# Retrive {} to {}".format(source, destination))
             else:
                 api.local("mkdir -p '%s' || true" % destdir)
                 api.get(source, destination, use_sudo=True)
