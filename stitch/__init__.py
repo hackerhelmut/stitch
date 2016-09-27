@@ -62,7 +62,7 @@ def main():
         state.commands.parse(parser)
         args = parser.parse_args()
 
-        state.env.always_use_pty = True  # Disable use of remote ptys to prevent services hanging
+        state.env.always_use_pty = False # Disable use of remote ptys to prevent services hanging
         state.env.forward_agent = True   # Allow agent forwarding to enable sudo per ssh key
         state.env.use_ssh_config = True  # Read ssh config to allow special logins
         state.env.debug = args.debug     # Print debug messages
